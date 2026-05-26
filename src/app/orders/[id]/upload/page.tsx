@@ -83,8 +83,9 @@ export default function UploadPage() {
   const allDone = slots.length > 0 && slots.every(s => s.status === 'done')
   const doneCount = slots.filter(s => s.status === 'done').length
 
-  function handleFinish() {
+  async function handleFinish() {
     setSubmitting(true)
+    await fetch(`/api/orders/${orderId}/generate`, { method: 'POST' })
     router.push(`/orders/${orderId}/preview`)
   }
 

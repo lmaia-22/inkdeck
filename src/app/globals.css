@@ -128,3 +128,15 @@
     @apply font-sans;
   }
 }
+
+@keyframes card-toss-y {
+  0%, 18%   { transform: translateY(0); }
+  50%       { transform: translateY(-240px); }
+  82%, 100% { transform: translateY(0); }
+}
+
+@keyframes card-toss-rz {
+  0%, 18%   { transform: rotateZ(var(--rz)) rotateY(0deg); }
+  50%       { transform: rotateZ(var(--rz)) rotateY(180deg); }
+  82%, 100% { transform: rotateZ(var(--rz)) rotateY(360deg); }
+}

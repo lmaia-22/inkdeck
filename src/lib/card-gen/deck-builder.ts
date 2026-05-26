@@ -1,3 +1,6 @@
+import { readFileSync } from 'fs'
+import { join } from 'path'
+import sharp from 'sharp'
 import { createServiceClient } from '@/lib/supabase/server'
 import { getDeck } from '@/config/deck'
 import { getPhotoForCard } from './get-photo-for-card'
@@ -6,6 +9,31 @@ import type { Order, OrderPhoto } from '@/types/database'
 import type { Card } from '@/types/deck'
 
 const BATCH_SIZE = 5
+
+// Logo dimensions on the card back: 200px wide, centered horizontally, near bottom of safe zone
+const LOGO_WIDTH = 200
+const LOGO_X = Math.round((825 - LOGO_WIDTH) / 2) // 312
+const LOGO_Y = 880
+
+let _logoBuffer: Buffer | null = null
+function getLogoBuffer(): Buffer {
+  if (!_logoBuffer) {
+    _logoBuffer = readFileSync(join(process.cwd(), 'public', 'inkdeck-logo.png'))
+  }
+  return _logoBuffer
+}
+
+async function stampLogo(cardBuffer: Buffer): Promise<Buffer> {
+  const resizedLogo = await sharp(getLogoBuffer())
+    .resize(LOGO_WIDTH, null, { fit: 'inside' })
+    .png()
+    .toBuffer()
+
+  return sharp(cardBuffer)
+    .composite([{ input: resizedLogo, left: LOGO_X, top: LOGO_Y }])
+    .png()
+    .toBuffer()
+}
 
 async function downloadPhoto(storagePath: string): Promise<Buffer> {
   const supabase = createServiceClient()
@@ -54,11 +82,8 @@ async function buildCard(
     : null
 
   const frontComposed = await composeCard(card, frontBuffer, frontBuffer !== null)
-  const backComposed = await composeCard(
-    card,
-    backBuffer,
-    backBuffer !== null
-  )
+  const backRaw = await composeCard(card, backBuffer, backBuffer !== null)
+  const backComposed = await stampLogo(backRaw)
 
   const frontPath = await uploadCard(order.id, card, 'front', frontComposed)
   const backPath = await uploadCard(order.id, card, 'back', backComposed)

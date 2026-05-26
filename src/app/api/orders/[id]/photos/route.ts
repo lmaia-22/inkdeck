@@ -66,6 +66,18 @@ export async function POST(
     return NextResponse.json({ error: insertError?.message ?? 'Insert failed' }, { status: 500 })
   }
 
+  // TODO: remove this bypass once Replicate account has credits.
+  // Skips AI processing and uses the original photo directly as the processed image.
+  const BYPASS_REPLICATE = true
+
+  if (BYPASS_REPLICATE) {
+    await serviceSupabase
+      .from('order_photos')
+      .update({ processed_path: storagePath, processing_status: 'done' })
+      .eq('id', photo.id)
+    return NextResponse.json({ photo: { ...photo, processed_path: storagePath, processing_status: 'done' } }, { status: 201 })
+  }
+
   const { data: signedData, error: signError } = await serviceSupabase.storage
     .from('order-photos')
     .createSignedUrl(storagePath, 300)
@@ -88,12 +100,13 @@ export async function POST(
       .from('order_photos')
       .update({ replicate_prediction_id: predictionId, processing_status: 'processing' })
       .eq('id', photo.id)
-  } catch {
+  } catch (err) {
+    console.error('[photos] Replicate error:', err)
     await serviceSupabase
       .from('order_photos')
       .update({ processing_status: 'failed' })
       .eq('id', photo.id)
-    return NextResponse.json({ error: 'AI processing failed to start' }, { status: 500 })
+    return NextResponse.json({ error: 'AI processing failed to start', detail: String(err) }, { status: 500 })
   }
 
   return NextResponse.json({ photo }, { status: 201 })

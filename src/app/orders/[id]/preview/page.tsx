@@ -40,6 +40,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   const { data: { publicUrl: baseUrl } } = supabase.storage
     .from('order-cards')
     .getPublicUrl('')
+  const storageBase = baseUrl.replace(/\/$/, '')
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] max-w-4xl mx-auto px-6 py-12 space-y-8">
@@ -62,7 +63,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
             <div key={cardKey} className="aspect-[5.5/8.5] rounded overflow-hidden border bg-white">
               {card.front_image_path ? (
                 <img
-                  src={`${baseUrl}/${card.front_image_path}`}
+                  src={`${storageBase}/${card.front_image_path}`}
                   alt={`${card.rank} of ${card.suit}`}
                   className="w-full h-full object-cover"
                 />

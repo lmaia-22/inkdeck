@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { CardShuffleHero } from '@/components/card-shuffle-hero'
 
 function LoginModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('')
@@ -98,29 +99,10 @@ export default function LandingPage() {
         </button>
       </header>
 
-      <main className="flex-1 flex flex-col items-center justify-center px-6 text-center max-w-2xl mx-auto w-full gap-8 pb-24">
-        <div className="space-y-4">
-          <h1 className="text-5xl font-bold tracking-tight leading-tight">
-            Your photos.<br />
-            As a deck of cards.
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            Upload your photos, we turn them into ink doodles, and print them as a real playing card deck.
-          </p>
-        </div>
+      <main className="flex-1 flex flex-col items-center px-6 pb-24">
+        <CardShuffleHero onSignIn={() => setOpen(true)} />
 
-        <div className="flex gap-3">
-          <a href="/signup">
-            <Button size="lg" className="px-8">
-              Get started
-            </Button>
-          </a>
-          <Button size="lg" variant="outline" onClick={() => setOpen(true)} className="px-8">
-            Sign in
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-3 gap-6 mt-4 text-left w-full max-w-lg">
+        <div className="grid grid-cols-3 gap-6 text-left w-full max-w-lg">
           {[
             { label: 'Simple', desc: '1 photo for the card back' },
             { label: 'Signature', desc: 'Unique face & ace cards' },
