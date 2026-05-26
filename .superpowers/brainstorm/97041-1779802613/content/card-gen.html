@@ -1,0 +1,122 @@
+<h2>InkDeck — Card Generation Logic & Pack Config</h2>
+<p class="subtitle">Section 3 of 4 — Como as fotos mapeiam para cartas + pipeline Sharp</p>
+
+<div class="section">
+  <h3>Photo → Card Mapping por Pack</h3>
+  <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; overflow:hidden; font-size:12px; font-family:monospace;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="background:#1e293b;">
+          <th style="padding:8px 12px; text-align:left; color:#94a3b8; font-size:11px;">Pack</th>
+          <th style="padding:8px 12px; text-align:left; color:#94a3b8; font-size:11px;">Back</th>
+          <th style="padding:8px 12px; text-align:left; color:#94a3b8; font-size:11px;">Numbered (2-7 / 2-10)</th>
+          <th style="padding:8px 12px; text-align:left; color:#94a3b8; font-size:11px;">Face + Ace (J/Q/K/A)</th>
+          <th style="padding:8px 12px; text-align:left; color:#94a3b8; font-size:11px;">Joker (54 only)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top:1px solid #1e293b;">
+          <td style="padding:8px 12px; color:#a5b4fc; font-weight:bold;">Simple</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto back</td>
+          <td style="padding:8px 12px; color:#64748b;">template padrão</td>
+          <td style="padding:8px 12px; color:#64748b;">template padrão</td>
+          <td style="padding:8px 12px; color:#64748b;">template padrão</td>
+        </tr>
+        <tr style="border-top:1px solid #1e293b;">
+          <td style="padding:8px 12px; color:#a5b4fc; font-weight:bold;">Duo</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto back</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto front (1 foto para todas)</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto front (mesma)</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto front (mesma)</td>
+        </tr>
+        <tr style="border-top:1px solid #1e293b;">
+          <td style="padding:8px 12px; color:#a5b4fc; font-weight:bold;">Signature</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto back</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto front (1 foto)</td>
+          <td style="padding:8px 12px; color:#fbbf24;">16 fotos únicas<br><span style="color:#64748b; font-size:10px;">slot = rank×4 + suit</span></td>
+          <td style="padding:8px 12px; color:#fbbf24;">2 fotos únicas</td>
+        </tr>
+        <tr style="border-top:1px solid #1e293b;">
+          <td style="padding:8px 12px; color:#a5b4fc; font-weight:bold;">Full Custom</td>
+          <td style="padding:8px 12px; color:#4ade80;">foto back</td>
+          <td style="padding:8px 12px; color:#f87171;">24 fotos únicas (40)<br>36 fotos únicas (54)<br><span style="color:#64748b; font-size:10px;">slot = rank×4 + suit</span></td>
+          <td style="padding:8px 12px; color:#fbbf24;">16 fotos únicas<br><span style="color:#64748b; font-size:10px;">slot = rank×4 + suit</span></td>
+          <td style="padding:8px 12px; color:#fbbf24;">2 fotos únicas</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:11px; color:#64748b; margin-top:8px;">
+    "template padrão" = layout InkDeck com rank + suit, sem foto de utilizador. Slot ordering: suits [♠=0, ♥=1, ♦=2, ♣=3], ranks [J=0, Q=1, K=2, A=3 para face_ace; 2=0..7=5 para numbered 40].
+  </p>
+</div>
+
+<div class="section">
+  <h3>Card Generation Pipeline (por carta)</h3>
+  <div style="display:flex; gap:8px; align-items:stretch; flex-wrap:wrap; font-size:12px;">
+
+    <div style="background:#1e293b; border-radius:8px; padding:12px; min-width:120px; border-left:3px solid #6366f1;">
+      <div style="color:#a5b4fc; font-weight:bold; margin-bottom:6px;">1. Lookup</div>
+      <div style="color:#94a3b8;">getPhotoForCard()<br>→ processed_path<br>em Storage</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555; font-size:18px;">›</div>
+
+    <div style="background:#1e293b; border-radius:8px; padding:12px; min-width:120px; border-left:3px solid #6366f1;">
+      <div style="color:#a5b4fc; font-weight:bold; margin-bottom:6px;">2. Resize</div>
+      <div style="color:#94a3b8;">Sharp resize<br>825×1125px<br>(MPC bleed spec)</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555; font-size:18px;">›</div>
+
+    <div style="background:#1e293b; border-radius:8px; padding:12px; min-width:140px; border-left:3px solid #f59e0b;">
+      <div style="color:#fbbf24; font-weight:bold; margin-bottom:6px;">3. SVG Overlay</div>
+      <div style="color:#94a3b8;">Gera SVG com:<br>• rank top-left/bottom-right<br>• suit symbol<br>• card border/frame</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555; font-size:18px;">›</div>
+
+    <div style="background:#1e293b; border-radius:8px; padding:12px; min-width:120px; border-left:3px solid #f59e0b;">
+      <div style="color:#fbbf24; font-weight:bold; margin-bottom:6px;">4. Composite</div>
+      <div style="color:#94a3b8;">sharp.composite(<br>[{input: svgBuffer}]<br>)</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555; font-size:18px;">›</div>
+
+    <div style="background:#1e293b; border-radius:8px; padding:12px; min-width:120px; border-left:3px solid #22c55e;">
+      <div style="color:#4ade80; font-weight:bold; margin-bottom:6px;">5. Export</div>
+      <div style="color:#94a3b8;">PNG 825×1125<br>300 DPI<br>→ Storage</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="section">
+  <h3>MPC File Spec</h3>
+  <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:12px; font-size:12px;">
+    <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:12px;">
+      <div style="color:#94a3b8; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Card size (with bleed)</div>
+      <div style="color:#e2e8f0; font-weight:bold; margin-top:4px; font-size:15px;">825 × 1125 px</div>
+      <div style="color:#64748b; margin-top:2px;">2.75" × 3.75" @ 300dpi</div>
+    </div>
+    <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:12px;">
+      <div style="color:#94a3b8; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Safe zone</div>
+      <div style="color:#e2e8f0; font-weight:bold; margin-top:4px; font-size:15px;">750 × 1050 px</div>
+      <div style="color:#64748b; margin-top:2px;">37.5px bleed each side</div>
+    </div>
+    <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:12px;">
+      <div style="color:#94a3b8; font-size:10px; text-transform:uppercase; letter-spacing:1px;">Format</div>
+      <div style="color:#e2e8f0; font-weight:bold; margin-top:4px; font-size:15px;">PNG / JPG</div>
+      <div style="color:#64748b; margin-top:2px;">RGB, sRGB color space</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Uma questão sobre o Simple pack</h3>
+  <div style="background:#1c1c2e; border:1px solid #f59e0b; border-radius:8px; padding:14px; font-size:13px;">
+    <div style="color:#fbbf24; font-weight:bold; margin-bottom:6px;">⚠ Preciso confirmar</div>
+    <div style="color:#94a3b8;">
+      O Simple tem "1 foto para card backs". Interpretei como: <br>
+      <strong style="color:#e2e8f0;">fronts usam um template padrão InkDeck</strong> (rank + suit em fundo limpo, sem foto do utilizador).<br><br>
+      Alternativa: a mesma foto é também usada nas fronts.<br><br>
+      Qual é a intenção?
+    </div>
+  </div>
+</div>

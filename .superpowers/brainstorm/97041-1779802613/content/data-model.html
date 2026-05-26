@@ -1,0 +1,203 @@
+<h2>InkDeck — Data Model</h2>
+<p class="subtitle">Section 2 of 4 — Schema do Postgres + tipos TypeScript</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">Tabelas Postgres (Supabase)</div>
+    <div class="mockup-body" style="padding: 16px; font-size: 13px;">
+
+      <!-- orders -->
+      <div style="margin-bottom: 20px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="background:#6366f1; color:white; font-size:10px; padding:2px 8px; border-radius:4px; font-weight:bold;">TABLE</span>
+          <span style="font-weight:bold; color:#e2e8f0; font-size:15px;">orders</span>
+        </div>
+        <div style="background:#0f172a; border:1px solid #1e293b; border-radius:6px; overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; font-family:monospace; font-size:12px;">
+            <thead>
+              <tr style="background:#1e293b;">
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">column</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">type</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#fbbf24;">id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">PK, default gen_random_uuid()</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">user_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">FK → auth.users</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">pack_type</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">simple | duo | signature | full_custom</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">deck_size</td>
+                <td style="padding:6px 12px; color:#67e8f9;">int2</td>
+                <td style="padding:6px 12px; color:#64748b;">40 | 54</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">status</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">draft → processing → preview → paid → submitted → fulfilled</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">stripe_payment_intent_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">nullable, set at checkout</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">mpc_order_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">nullable, set after MPC submission</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">created_at</td>
+                <td style="padding:6px 12px; color:#67e8f9;">timestamptz</td>
+                <td style="padding:6px 12px; color:#64748b;">default now()</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- order_photos -->
+      <div style="margin-bottom: 20px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="background:#6366f1; color:white; font-size:10px; padding:2px 8px; border-radius:4px; font-weight:bold;">TABLE</span>
+          <span style="font-weight:bold; color:#e2e8f0; font-size:15px;">order_photos</span>
+        </div>
+        <div style="background:#0f172a; border:1px solid #1e293b; border-radius:6px; overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; font-family:monospace; font-size:12px;">
+            <thead>
+              <tr style="background:#1e293b;">
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">column</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">type</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#fbbf24;">id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">PK</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">order_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">FK → orders</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">role</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">back | front | face_ace | joker</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">slot_index</td>
+                <td style="padding:6px 12px; color:#67e8f9;">int2</td>
+                <td style="padding:6px 12px; color:#64748b;">0-based, distingue múltiplas face_ace</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">original_path</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">Supabase Storage path do upload original</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">processed_path</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">Supabase Storage path após Replicate</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">replicate_prediction_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">para tracking do job AI</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">processing_status</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">pending | processing | done | failed</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- order_cards -->
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="background:#6366f1; color:white; font-size:10px; padding:2px 8px; border-radius:4px; font-weight:bold;">TABLE</span>
+          <span style="font-weight:bold; color:#e2e8f0; font-size:15px;">order_cards</span>
+          <span style="color:#64748b; font-size:11px;">— geradas pelo card engine após AI processing</span>
+        </div>
+        <div style="background:#0f172a; border:1px solid #1e293b; border-radius:6px; overflow:hidden;">
+          <table style="width:100%; border-collapse:collapse; font-family:monospace; font-size:12px;">
+            <thead>
+              <tr style="background:#1e293b;">
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">column</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">type</th>
+                <th style="padding:6px 12px; text-align:left; color:#94a3b8;">notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#fbbf24;">id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">PK</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">order_id</td>
+                <td style="padding:6px 12px; color:#67e8f9;">uuid</td>
+                <td style="padding:6px 12px; color:#64748b;">FK → orders</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">suit</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">spades | hearts | diamonds | clubs | joker</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">rank</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">A | 2..10 | J | Q | K | JOKER</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">front_image_path</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">PNG final composited (825×1125px)</td>
+              </tr>
+              <tr style="border-top:1px solid #1e293b;">
+                <td style="padding:6px 12px; color:#e2e8f0;">back_image_path</td>
+                <td style="padding:6px 12px; color:#67e8f9;">text</td>
+                <td style="padding:6px 12px; color:#64748b;">PNG composited do verso</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Deck Structure</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:13px;">
+    <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+      <div style="color:#a5b4fc; font-weight:bold; margin-bottom:8px;">40-card deck</div>
+      <div style="color:#94a3b8;">4 suits × 10 ranks</div>
+      <div style="color:#64748b; margin-top:4px; font-family:monospace;">A 2 3 4 5 6 7 J Q K</div>
+      <div style="color:#64748b; margin-top:4px; font-size:11px;">♠ ♥ ♦ ♣  (sem 8, 9, 10)</div>
+    </div>
+    <div style="background:#0f172a; border:1px solid #1e293b; border-radius:8px; padding:14px;">
+      <div style="color:#a5b4fc; font-weight:bold; margin-bottom:8px;">54-card deck</div>
+      <div style="color:#94a3b8;">4 suits × 13 ranks + 2 Jokers</div>
+      <div style="color:#64748b; margin-top:4px; font-family:monospace;">A 2 3 4 5 6 7 8 9 10 J Q K</div>
+      <div style="color:#64748b; margin-top:4px; font-size:11px;">♠ ♥ ♦ ♣ + 2×JOKER</div>
+    </div>
+  </div>
+</div>

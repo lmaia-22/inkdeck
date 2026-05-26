@@ -1,0 +1,97 @@
+<h2>InkDeck — System Architecture</h2>
+<p class="subtitle">Section 1 of 4 — Does this overall shape look right?</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">Request / Response Flow</div>
+    <div class="mockup-body" style="font-family: monospace; font-size: 13px; line-height: 2; padding: 16px;">
+
+      <div style="display: grid; grid-template-columns: 1fr 40px 1fr 40px 1fr; gap: 0; align-items: center; text-align: center; margin-bottom: 24px;">
+
+        <div style="background: #1a1a2e; border: 1px solid #444; border-radius: 8px; padding: 12px;">
+          <div style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">Browser</div>
+          <div style="font-size: 15px; font-weight: bold; color: #e2e8f0; margin-top: 4px;">Next.js App</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">App Router · shadcn/ui</div>
+        </div>
+        <div style="text-align:center; color: #4ade80; font-size: 18px;">→</div>
+        <div style="background: #1a1a2e; border: 1px solid #444; border-radius: 8px; padding: 12px;">
+          <div style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">Server</div>
+          <div style="font-size: 15px; font-weight: bold; color: #e2e8f0; margin-top: 4px;">API Routes</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Next.js · Edge/Node</div>
+        </div>
+        <div style="text-align:center; color: #4ade80; font-size: 18px;">→</div>
+        <div style="background: #1a1a2e; border: 1px solid #444; border-radius: 8px; padding: 12px;">
+          <div style="font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px;">External</div>
+          <div style="font-size: 15px; font-weight: bold; color: #e2e8f0; margin-top: 4px;">Replicate</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 4px;">AI · line-art model</div>
+        </div>
+
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px;">
+        <div style="background: #0f2027; border: 1px solid #2d6a4f; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #52b788; text-transform: uppercase; letter-spacing: 1px;">Supabase</div>
+          <div style="font-weight: bold; color: #e2e8f0; margin-top: 4px;">Auth</div>
+        </div>
+        <div style="background: #0f2027; border: 1px solid #2d6a4f; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #52b788; text-transform: uppercase; letter-spacing: 1px;">Supabase</div>
+          <div style="font-weight: bold; color: #e2e8f0; margin-top: 4px;">Postgres</div>
+        </div>
+        <div style="background: #0f2027; border: 1px solid #2d6a4f; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #52b788; text-transform: uppercase; letter-spacing: 1px;">Supabase</div>
+          <div style="font-weight: bold; color: #e2e8f0; margin-top: 4px;">Storage</div>
+        </div>
+        <div style="background: #0f2027; border: 1px solid #2d6a4f; border-radius: 8px; padding: 12px; text-align: center;">
+          <div style="font-size: 11px; color: #52b788; text-transform: uppercase; letter-spacing: 1px;">External</div>
+          <div style="font-weight: bold; color: #e2e8f0; margin-top: 4px;">MPC API</div>
+        </div>
+      </div>
+
+      <div style="background: #1c1c2e; border: 1px dashed #555; border-radius: 8px; padding: 14px; font-size: 12px; color: #94a3b8;">
+        <strong style="color:#e2e8f0;">Sharp + SVG Card Engine</strong> — runs in API route, no extra service<br>
+        Composites AI artwork + rank/suit SVG overlay → print-ready PNG (825×1125px @ 300dpi, MPC spec)
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>User Journey (high-level)</h3>
+  <div style="display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap;">
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #6366f1;">
+      <div style="color:#a5b4fc; font-weight:bold;">1. Auth</div>
+      <div style="color:#94a3b8; margin-top:4px;">Sign up / log in</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #6366f1;">
+      <div style="color:#a5b4fc; font-weight:bold;">2. Configure</div>
+      <div style="color:#94a3b8; margin-top:4px;">Pack + deck size</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #6366f1;">
+      <div style="color:#a5b4fc; font-weight:bold;">3. Upload</div>
+      <div style="color:#94a3b8; margin-top:4px;">Photos per slot</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #f59e0b;">
+      <div style="color:#fbbf24; font-weight:bold;">4. AI Process</div>
+      <div style="color:#94a3b8; margin-top:4px;">Replicate webhook</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #f59e0b;">
+      <div style="color:#fbbf24; font-weight:bold;">5. Preview</div>
+      <div style="color:#94a3b8; margin-top:4px;">Review all cards</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #22c55e;">
+      <div style="color:#4ade80; font-weight:bold;">6. Checkout</div>
+      <div style="color:#94a3b8; margin-top:4px;">Stripe payment</div>
+    </div>
+    <div style="display:flex;align-items:center;color:#555;">›</div>
+    <div style="background:#1e293b; border-radius:8px; padding:10px 14px; font-size:12px; border-left: 3px solid #22c55e;">
+      <div style="color:#4ade80; font-weight:bold;">7. Print</div>
+      <div style="color:#94a3b8; margin-top:4px;">Submit to MPC</div>
+    </div>
+  </div>
+</div>

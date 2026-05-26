@@ -1,0 +1,112 @@
+<h2>InkDeck — Project Structure</h2>
+<p class="subtitle">Section 4 of 4 — Ficheiros, módulos e responsabilidades</p>
+
+<div class="section">
+  <div class="split">
+    <div class="mockup">
+      <div class="mockup-header">📁 Directory Layout</div>
+      <div class="mockup-body" style="font-family:monospace; font-size:12px; line-height:1.8; padding:16px; color:#94a3b8;">
+        <div><span style="color:#6366f1;">src/</span></div>
+        <div style="padding-left:16px;"><span style="color:#a5b4fc;">app/</span></div>
+        <div style="padding-left:32px; color:#64748b;">(auth)/login, signup</div>
+        <div style="padding-left:32px; color:#64748b;">(dashboard)/orders/</div>
+        <div style="padding-left:32px; color:#64748b;">orders/[id]/configure/</div>
+        <div style="padding-left:32px; color:#64748b;">orders/[id]/upload/</div>
+        <div style="padding-left:32px; color:#64748b;">orders/[id]/preview/</div>
+        <div style="padding-left:32px; color:#64748b;">orders/[id]/checkout/</div>
+        <div style="padding-left:32px;"><span style="color:#a5b4fc;">api/</span></div>
+        <div style="padding-left:48px; color:#64748b;">orders/route.ts</div>
+        <div style="padding-left:48px; color:#64748b;">orders/[id]/photos/route.ts</div>
+        <div style="padding-left:48px; color:#64748b;">orders/[id]/process/route.ts</div>
+        <div style="padding-left:48px; color:#64748b;">orders/[id]/generate/route.ts</div>
+        <div style="padding-left:48px; color:#fbbf24;">webhooks/replicate/route.ts</div>
+        <div style="padding-left:48px; color:#fbbf24;">webhooks/stripe/route.ts</div>
+
+        <div style="margin-top:8px;"><span style="color:#6366f1;">lib/</span></div>
+        <div style="padding-left:16px; color:#4ade80;">supabase/</div>
+        <div style="padding-left:32px; color:#64748b;">client.ts  server.ts  middleware.ts</div>
+        <div style="padding-left:16px; color:#4ade80;">replicate/</div>
+        <div style="padding-left:32px; color:#64748b;">client.ts  process-photo.ts</div>
+        <div style="padding-left:16px; color:#f87171;">card-gen/</div>
+        <div style="padding-left:32px; color:#64748b;">compose-card.ts</div>
+        <div style="padding-left:32px; color:#64748b;">generate-svg-overlay.ts</div>
+        <div style="padding-left:32px; color:#64748b;">get-photo-for-card.ts</div>
+        <div style="padding-left:32px; color:#64748b;">deck-builder.ts</div>
+        <div style="padding-left:16px; color:#4ade80;">mpc/</div>
+        <div style="padding-left:32px; color:#64748b;">client.ts  submit-order.ts</div>
+
+        <div style="margin-top:8px;"><span style="color:#6366f1;">config/</span></div>
+        <div style="padding-left:16px; color:#64748b;">packs.ts</div>
+        <div style="padding-left:16px; color:#64748b;">deck.ts</div>
+        <div style="padding-left:16px; color:#64748b;">mpc-spec.ts</div>
+
+        <div style="margin-top:8px;"><span style="color:#6366f1;">types/</span></div>
+        <div style="padding-left:16px; color:#64748b;">database.ts</div>
+        <div style="padding-left:16px; color:#64748b;">deck.ts</div>
+        <div style="padding-left:16px; color:#64748b;">packs.ts</div>
+      </div>
+    </div>
+
+    <div class="mockup">
+      <div class="mockup-header">🔑 Key Modules</div>
+      <div class="mockup-body" style="font-size:12px; line-height:1.7; padding:16px;">
+
+        <div style="margin-bottom:16px;">
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">config/packs.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Fonte da verdade para requisitos de cada pack. Exporta <code style="color:#67e8f9;">PACK_CONFIGS</code> — mapa de PackType+DeckSize → número de slots por role. A UI e a validação lêm daqui.</div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">config/deck.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Define os arrays de suits e ranks para cada deck size. <code style="color:#67e8f9;">DECK_40</code> e <code style="color:#67e8f9;">DECK_54</code>. Gera todos os cards (suit+rank) de um deck.</div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">lib/card-gen/get-photo-for-card.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Função pura: dado Card + PackType + OrderPhoto[], devolve o OrderPhoto correto (ou null para template padrão). Coração da lógica de mapeamento.</div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">lib/card-gen/generate-svg-overlay.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Gera SVG string com rank (top-left + inverted bottom-right), suit symbol, e card border. Estilo hand-drawn/doodle para match com o logo.</div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">lib/card-gen/compose-card.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Sharp pipeline: download do Storage → resize 825×1125 → composite SVG buffer → PNG output → upload ao Storage. Uma carta de cada vez.</div>
+        </div>
+
+        <div>
+          <div style="color:#f87171; font-weight:bold; font-family:monospace;">lib/card-gen/deck-builder.ts</div>
+          <div style="color:#94a3b8; margin-top:4px;">Orquestra a geração de todas as cartas de um order em paralelo (Promise.all por batch). Escreve os order_cards na DB.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Order Status Machine</h3>
+  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:12px; font-family:monospace;">
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#94a3b8; border:1px solid #334155;">draft</div>
+    <div style="color:#555;">→</div>
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#fbbf24; border:1px solid #92400e;">processing</div>
+    <div style="color:#555;">→</div>
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#a5b4fc; border:1px solid #3730a3;">preview</div>
+    <div style="color:#555;">→</div>
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#4ade80; border:1px solid #166534;">paid</div>
+    <div style="color:#555;">→</div>
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#f87171; border:1px solid #991b1b;">submitted</div>
+    <div style="color:#555;">→</div>
+    <div style="background:#1e293b; border-radius:6px; padding:8px 12px; color:#94a3b8; border:1px dashed #475569;">fulfilled</div>
+  </div>
+  <div style="margin-top:12px; font-size:11px; color:#475569; line-height:1.8;">
+    <strong style="color:#64748b;">draft</strong> — utilizador está a configurar + upload<br>
+    <strong style="color:#64748b;">processing</strong> — Replicate a correr (webhook aguardado)<br>
+    <strong style="color:#64748b;">preview</strong> — AI done, deck-builder gerou todas as order_cards, utilizador pode ver preview<br>
+    <strong style="color:#64748b;">paid</strong> — Stripe webhook confirmou pagamento<br>
+    <strong style="color:#64748b;">submitted</strong> — ficheiros enviados para MPC API<br>
+    <strong style="color:#64748b;">fulfilled</strong> — MPC confirmou receção e está a imprimir
+  </div>
+</div>
