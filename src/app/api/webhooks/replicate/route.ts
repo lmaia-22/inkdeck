@@ -1,18 +1,55 @@
+import { createHmac } from 'crypto'
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { buildDeck } from '@/lib/card-gen/deck-builder'
 import type { Order, OrderPhoto } from '@/types/database'
 
+function verifyReplicateSignature(
+  rawBody: string,
+  webhookId: string,
+  webhookTimestamp: string,
+  webhookSignature: string,
+  secret: string
+): boolean {
+  const message = `${webhookId}.${webhookTimestamp}.${rawBody}`
+  const computed = createHmac('sha256', secret).update(message).digest('base64')
+  // Header may contain multiple signatures: "v1,<sig1> v1,<sig2>"
+  return webhookSignature
+    .split(' ')
+    .some(part => {
+      const [, sig] = part.split(',')
+      return sig === computed
+    })
+}
+
 export async function POST(request: Request) {
+  const webhookSecret = process.env.REPLICATE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 })
+  }
+
+  const rawBody = await request.text()
+  const webhookId = request.headers.get('webhook-id') ?? ''
+  const webhookTimestamp = request.headers.get('webhook-timestamp') ?? ''
+  const webhookSignature = request.headers.get('webhook-signature') ?? ''
+
+  if (!webhookId || !webhookTimestamp || !webhookSignature) {
+    return NextResponse.json({ error: 'Missing webhook headers' }, { status: 401 })
+  }
+
+  if (!verifyReplicateSignature(rawBody, webhookId, webhookTimestamp, webhookSignature, webhookSecret)) {
+    return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 })
+  }
+
+  const body = JSON.parse(rawBody)
+  const { status, output } = body
+
   const url = new URL(request.url)
   const photoId = url.searchParams.get('photo_id')
 
   if (!photoId) {
     return NextResponse.json({ error: 'Missing photo_id' }, { status: 400 })
   }
-
-  const body = await request.json()
-  const { status, output } = body
 
   const supabase = createServiceClient()
 
@@ -60,25 +97,31 @@ export async function POST(request: Request) {
     .neq('processing_status', 'done')
 
   if (!remainingPhotos || remainingPhotos.length === 0) {
-    const { data: order } = await supabase
+    // Atomic CAS: only claim the order if it's still in 'draft' state.
+    // If another webhook handler already claimed it, this returns no rows.
+    const { data: claimedOrder } = await supabase
       .from('orders')
-      .select()
+      .update({ status: 'processing' })
       .eq('id', photo.order_id)
+      .eq('status', 'draft')
+      .select()
       .single<Order>()
 
-    if (!order) return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    if (!claimedOrder) {
+      // Another handler already claimed this order — skip to avoid double build
+      return NextResponse.json({ ok: true })
+    }
 
     const { data: allPhotos } = await supabase
       .from('order_photos')
       .select()
       .eq('order_id', photo.order_id)
 
-    await supabase
-      .from('orders')
-      .update({ status: 'processing' })
-      .eq('id', order.id)
+    if (!allPhotos) {
+      return NextResponse.json({ error: 'Failed to load photos for deck build' }, { status: 500 })
+    }
 
-    await buildDeck(order, allPhotos as OrderPhoto[])
+    await buildDeck(claimedOrder, allPhotos as OrderPhoto[])
   }
 
   return NextResponse.json({ ok: true })
