@@ -55,7 +55,7 @@ async function buildCard(
 
   const frontComposed = await composeCard(card, frontBuffer, frontBuffer !== null)
   const backComposed = await composeCard(
-    { suit: 'spades', rank: 'A' },
+    card,
     backBuffer,
     backBuffer !== null
   )
@@ -91,8 +91,10 @@ export async function buildDeck(order: Order, photos: OrderPhoto[]): Promise<voi
     if (error) throw new Error(`Failed to save order_cards batch: ${error.message}`)
   }
 
-  await supabase
+  const { error: statusError } = await supabase
     .from('orders')
     .update({ status: 'preview' })
     .eq('id', order.id)
+
+  if (statusError) throw new Error(`Failed to update order status: ${statusError.message}`)
 }
