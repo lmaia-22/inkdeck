@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import type { PackType } from '@/types/packs'
 import type { DeckSize } from '@/types/deck'
-import { getPackConfig } from '@/config/packs'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -21,8 +20,6 @@ export async function POST(request: Request) {
   if (deck_size !== 40 && deck_size !== 54) {
     return NextResponse.json({ error: 'Invalid deck_size' }, { status: 400 })
   }
-
-  getPackConfig(pack_type, deck_size)
 
   const { data: order, error } = await supabase
     .from('orders')

@@ -66,15 +66,20 @@ export async function POST(
     return NextResponse.json({ error: insertError?.message ?? 'Insert failed' }, { status: 500 })
   }
 
-  const { data: { publicUrl } } = serviceSupabase.storage
+  const { data: signedData, error: signError } = await serviceSupabase.storage
     .from('order-photos')
-    .getPublicUrl(storagePath)
+    .createSignedUrl(storagePath, 300)
 
+  if (signError || !signedData) {
+    return NextResponse.json({ error: 'Failed to create signed URL' }, { status: 500 })
+  }
+
+  const imageUrl = signedData.signedUrl
   const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/replicate?photo_id=${photo.id}`
 
   try {
     const predictionId = await processPhotoAsync({
-      imageUrl: publicUrl,
+      imageUrl,
       photoId: photo.id,
       webhookUrl,
     })
