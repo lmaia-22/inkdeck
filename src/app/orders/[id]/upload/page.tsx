@@ -76,6 +76,7 @@ export default function UploadPage() {
 
   function openFilePicker(role: string, index: number) {
     setActiveSlot({ role, index })
+    if (fileInputRef.current) fileInputRef.current.value = ''
     fileInputRef.current?.click()
   }
 

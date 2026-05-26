@@ -48,7 +48,7 @@ export default async function DashboardPage() {
         {orders?.map((order: Order) => (
           <Link
             key={order.id}
-            href={`/orders/${order.id}/${order.status === 'draft' ? 'configure' : order.status === 'preview' ? 'preview' : 'configure'}`}
+            href={`/orders/${order.id}/${order.status === 'draft' ? 'configure' : 'preview'}`}
             className="block"
           >
             <div className="border rounded-lg px-4 py-3 flex items-center justify-between hover:bg-accent/30 transition-colors">
