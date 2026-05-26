@@ -52,4 +52,18 @@ describe('generateSvgOverlay', () => {
     expect(svg).toContain('width="825"')
     expect(svg).toContain('height="1125"')
   })
+
+  it('contains the rank text in both corners (top-left and bottom-right rotated)', () => {
+    const svg = generateSvgOverlay({ suit: 'spades', rank: 'K' }, { hasArtwork: true })
+    const matches = svg.match(/>K</g)
+    expect(matches).not.toBeNull()
+    expect(matches!.length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('contains JOKER text in both corners', () => {
+    const svg = generateSvgOverlay({ suit: 'joker', rank: 'JOKER' }, { hasArtwork: true })
+    const matches = svg.match(/JOKER/g)
+    expect(matches).not.toBeNull()
+    expect(matches!.length).toBeGreaterThanOrEqual(2)
+  })
 })

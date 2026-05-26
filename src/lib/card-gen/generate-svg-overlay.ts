@@ -1,6 +1,10 @@
-import type { Card } from '@/types/deck'
+import type { Card, AnySuit } from '@/types/deck'
 
-const SUIT_SYMBOL: Record<string, string> = {
+function escapeXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+const SUIT_SYMBOL: Record<AnySuit, string> = {
   spades: '♠',
   hearts: '♥',
   diamonds: '♦',
@@ -21,7 +25,8 @@ interface OverlayOptions {
 export function generateSvgOverlay(card: Card, options: OverlayOptions): string {
   const { suit, rank } = card
   const { hasArtwork } = options
-  const symbol = SUIT_SYMBOL[suit] ?? '?'
+  const symbol = escapeXml(SUIT_SYMBOL[suit] ?? '?')
+  const escapedRank = escapeXml(rank)
   const color = suitColor(suit)
   const isJoker = rank === 'JOKER'
 
@@ -30,9 +35,9 @@ export function generateSvgOverlay(card: Card, options: OverlayOptions): string 
     : `<rect width="825" height="1125" fill="#FAFAF8"/>`
 
   const cornerLabel = isJoker
-    ? `<text font-size="28" fill="${color}" font-family="Arial, sans-serif" font-weight="bold">JOKER</text>`
+    ? `<text y="0" font-size="28" fill="${color}" font-family="Arial, sans-serif" font-weight="bold" dominant-baseline="hanging">JOKER</text>`
     : `
-      <text y="0" font-size="52" fill="${color}" font-family="Arial, sans-serif" font-weight="bold" dominant-baseline="hanging">${rank}</text>
+      <text y="0" font-size="52" fill="${color}" font-family="Arial, sans-serif" font-weight="bold" dominant-baseline="hanging">${escapedRank}</text>
       <text y="58" font-size="36" fill="${color}" font-family="Arial, sans-serif" dominant-baseline="hanging">${symbol}</text>
     `
 
